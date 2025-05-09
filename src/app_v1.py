@@ -347,10 +347,47 @@ def main():
             
     # TAB 3: Data oration UI Skeleton
     with tab3:
-        st.header("Data Exploration")
-        st.info("Raw data views, visualizations, and correlation plots will be added here.")
-    
-   
+        st.header("Data Visualizations")   
+        # Create two columns for parallel display
+        col1, col2 = st.columns(2)
 
+        # Display GIFs in respective columns
+        with col1:
+            st.subheader("Incident Feature")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "incidents.png"), use_container_width=True)
+    
+        with col2:
+            st.subheader("Feature Importance")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "cross-correlation-matrix.png"), use_container_width=True)
+        #st.divider()
+        st.header("Airport Features")
+        
+        col1, col2, col3 = st.columns(3)
+
+        # Display GIFs in respective columns
+        with col1:
+            st.subheader("Origin Airports")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "origin_airports.png"), use_container_width=True)
+    
+        with col2:
+            st.subheader("Destination Airports")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "destination_airports.png"), use_container_width=True)
+        
+        with col3:
+            st.subheader("Incident Routes")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "incident_routes.png"), use_container_width=True)
+        
+        st.header("Time Features")   
+        # Create two columns for parallel display
+        col1, col2 = st.columns(2)
+
+        # Display GIFs in respective columns
+        with col1:
+            st.subheader("Cyclical encoding Visualization")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "cyclical_encoding.png"), use_container_width=True)
+    
+        with col2:
+            st.subheader("Time representation in a circle plot")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "circle_time.png"), use_container_width=True)
 if __name__ == "__main__":
     main()
