@@ -289,15 +289,68 @@ def main():
                 st.plotly_chart(fig, use_container_width=True)
     # TAB 2: Model Performance UI Skeleton
     with tab2:
-        st.header("Model Performance Metrics")
-        st.info("Model evaluation metrics and visualizations will appear here.")
-        st.image(os.path.join(os.path.dirname(__file__), "static", "crash_1.gif"), use_container_width=True)
-    st.divider()
+        st.header("Model Performance Visualizations")
+        # Create two columns for parallel display
+        col1, col2 = st.columns(2)
 
-    # TAB 3: Data Exploration UI Skeleton
+        # Display GIFs in respective columns
+        with col1:
+            st.subheader("ROC curve")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "ROC.png"), use_container_width=True)
+    
+        with col2:
+            st.subheader("Feature Importance")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "feature_importance.png"), use_container_width=True)
+        #st.divider()
+        st.header("Probability Plots")
+        # Create two columns for parallel display
+        col1, col2 = st.columns(2)
+
+        # Display GIFs in respective columns
+        with col1:
+            st.subheader("Calibrated Model")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "prob_plot_calib.png"), use_container_width=True)
+    
+        with col2:
+            st.subheader("Optimized Model")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "prob_plot_optimized.png"), use_container_width=True)
+        
+        st.header("Calibration Plots")
+        # Create two columns for parallel display
+        col1, col2 = st.columns(2)
+
+        # Display GIFs in respective columns
+        with col1:
+            st.subheader("Base Model")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "calib_plot_base.png"), use_container_width=True)
+    
+        with col2:
+            st.subheader("Optimized Model")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "calib_plot_calib.png"), use_container_width=True)
+        
+        st.header("Confusion Matrix")
+        # Create two columns for parallel display
+        col1, col2, col3 = st.columns(3)
+
+        # Display GIFs in respective columns
+        with col1:
+            st.subheader("Base Model")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "test_confusion.png"), use_container_width=True)
+    
+        with col2:
+            st.subheader("Calibrated Model")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "test_confusion_calibrated.png"), use_container_width=True)
+        
+        with col3:
+            st.subheader("Optimized Model")  # Adding a subheader
+            st.image(os.path.join(os.path.dirname(__file__), "static", "test_confusion_optimized.png"), use_container_width=True) 
+            
+    # TAB 3: Data oration UI Skeleton
     with tab3:
         st.header("Data Exploration")
         st.info("Raw data views, visualizations, and correlation plots will be added here.")
+    
+   
 
 if __name__ == "__main__":
     main()
