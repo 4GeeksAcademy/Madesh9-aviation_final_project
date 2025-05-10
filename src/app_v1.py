@@ -265,17 +265,17 @@ def main():
                 st.write(f"The probability of your plane crashing is {percent_probability.item():.2f}%")
                 # Gauge chart
                 fig = go.Figure(go.Indicator(
-                    mode="gauge+number+delta",
+                    mode="gauge+number",
                     value=percent_probability.item(),
-                    delta={'reference': 50, 'increasing': {'color': "red"}},
+                    title={'text': "Flight Incident Risk (%)", 'font': {'size': 30}},
                     gauge={
                         'axis': {'range': [0, 100]},
                         'bar': {'color': "darkblue"},
                         'steps': [
-                            {'range': [0, 25], 'color': "lightgreen"},
-                            {'range': [25, 50], 'color': "yellow"},
-                            {'range': [50, 75], 'color': "orange"},
-                            {'range': [75, 100], 'color': "red"}
+                            {'range': [0, 25], 'color': "lightgreen", 'name': "Low Risk", 'size': 0.5},
+                            {'range': [25, 50], 'color': "yellow", 'name': "Medium Risk", 'size': 0.5},
+                            {'range': [50, 75], 'color': "orange", 'name': "High Risk", 'size': 0.5},
+                            {'range': [75, 100], 'color': "red", 'name': "Very High Risk", 'size': 0.5},
                         ],
                         'threshold': {
                             'line': {'color': "black", 'width': 4},
@@ -283,7 +283,6 @@ def main():
                             'value': percent_probability.item()
                         }
                     },
-                    title={'text': "Flight Incident Risk (%)"}
                 ))
 
                 st.plotly_chart(fig, use_container_width=True)
