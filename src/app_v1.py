@@ -272,19 +272,18 @@ def main():
                         'axis': {'range': [0, 100]},
                         'bar': {'color': "darkblue"},
                         'steps': [
-                            {'range': [0, 25], 'color': "lightgreen", 'name': "Low Risk", 'size': 0.5},
-                            {'range': [25, 50], 'color': "yellow", 'name': "Medium Risk", 'size': 0.5},
-                            {'range': [50, 75], 'color': "orange", 'name': "High Risk", 'size': 0.5},
-                            {'range': [75, 100], 'color': "red", 'name': "Very High Risk", 'size': 0.5},
+                            {'range': [0, 25], 'color': "lightgreen", 'name': "Low Risk"},
+                            {'range': [25, 50], 'color': "yellow", 'name': "Medium Risk"},
+                            {'range': [50, 75], 'color': "orange", 'name': "High Risk"},
+                            {'range': [75, 100], 'color': "red", 'name': "Very High Risk"},
                         ],
                         'threshold': {
-                            'line': {'color': "black", 'width': 4},
-                            'thickness': 0.75,
+                            'line': {'color': "white", 'width': 6},
+                            'thickness': 1,
                             'value': percent_probability.item()
                         }
-                    },
+                    },    
                 ))
-
                 st.plotly_chart(fig, use_container_width=True)
     # TAB 2: Model Performance UI Skeleton
     with tab2:
