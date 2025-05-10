@@ -1,15 +1,31 @@
+# main.py
+
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
 import numpy as np
 import time
 from PIL import Image
+import joblib
+import tab_one as tab_one_func
 
 # ---------------------------
 # PAGE CONFIG & BANNER IMAGE
 # ---------------------------
 st.set_page_config(page_title="✈️ Flight Incident App", layout="wide")
 image = Image.open("/workspaces/Madesh9-aviation_final_project/src/static/photo.jpg")
+
+# ---------------------------
+# LOAD MODELS
+# ---------------------------
+@st.cache_resource
+def load_model_and_encoder():
+    model = joblib.load("/workspaces/Madesh9-aviation_final_project/models/incident_model.pkl")
+    encoder = joblib.load("/workspaces/Madesh9-aviation_final_project/models/encoder.pkl")
+    return model, encoder
+
+model, encoder = load_model_and_encoder()
+frequencies = {}
 
 # ---------------------------
 # LOAD AIRPORT DATA
@@ -23,23 +39,6 @@ def load_airports():
     us_airports = df[(df['Country'] == 'United States') & (df['IATA'].notnull()) & (df['IATA'] != '\\N')]
     us_airports["Label"] = us_airports["City"] + " - " + us_airports["Name"] + " (" + us_airports["IATA"] + ")"
     return us_airports[['Label', 'Name', 'City', 'IATA', 'Latitude', 'Longitude']]
-
-# ---------------------------
-# TAB 1: Incident Prediction UI
-# ---------------------------
-def tab1(airports: pd.DataFrame):
-    '''Defines incident prediction tab.'''
-    st.header("Predict Flight Incident Risk")
-    col1, col2 = st.columns(2)
-    with col1:
-        origin_label = st.selectbox("Origin Airport", airports['Label'])
-        dest_label = st.selectbox("Destination Airport", airports['Label'])
-    with col2:
-        departure_time = st.number_input("Departure Time (e.g., 1430 for 2:30 PM)", min_value=0, max_value=2359, step=5)
-
-        st.button("Submit for map route and flight animation")
-
-    return origin_label, dest_label
 
 # ---------------------------
 # ARCS & MAP HELPERS
@@ -66,16 +65,24 @@ icon_data = {
 def main():
     st.title("✈️ Flight Incident Predictor & Dashboard")
     st.image(image, width=200)
-    st.markdown("""
-    This app predicts the likelihood of a flight incident and visualizes the flight path between selected airports.
-    """)
+    st.markdown("This app predicts the likelihood of a flight incident and visualizes the flight path.")
 
     airports = load_airports()
 
-    tab_1, tab_2, tab_3 = st.tabs(["Incident Predictor","🌍 Map View", "🛫 Flight Animation"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "Incident Predictor", "Model Performance", "Data Exploration", "🌍 Map View", "🛫 Flight Animation"
+    ])
 
-    with tab_1:
-        origin_label, dest_label = tab1(airports)
+    with tab1:
+        origin_label, dest_label, departure_time = tab_one_func.tab1(airports, model, encoder, frequencies)
+
+    with tab2:
+        st.header("Model Performance Metrics")
+        st.info("Model evaluation metrics and visualizations will appear here.")
+
+    with tab3:
+        st.header("Data Exploration")
+        st.info("Raw data views, visualizations, and correlation plots will be added here.")
 
     origin = airports[airports['Label'] == origin_label].iloc[0]
     destination = airports[airports['Label'] == dest_label].iloc[0]
@@ -111,10 +118,7 @@ def main():
         zoom=3,
         pitch=0,
     )
-    tooltip = {
-        "html": "<b>Airport:</b> {name}",
-        "style": {"backgroundColor": "black", "color": "white"}
-    }
+    tooltip = {"html": "<b>Airport:</b> {name}", "style": {"backgroundColor": "black", "color": "white"}}
     icon_layer = pdk.Layer(
         type='IconLayer',
         data=icon_layer_data,
@@ -125,7 +129,7 @@ def main():
         pickable=True,
     )
 
-    with tab_2:
+    with tab4:
         curved_layer = pdk.Layer(
             "PathLayer",
             data=[{"path": curved_path}],
@@ -142,7 +146,7 @@ def main():
             tooltip=tooltip
         ))
 
-    with tab_3:
+    with tab5:
         chart_placeholder = st.empty()
         start = st.button("🛫 Start Flight")
         if start:
@@ -167,15 +171,6 @@ def main():
                     width_scale=20,
                     width_min_pixels=2,
                     get_width=3,
-                )
-                curved_layer = pdk.Layer(
-                    "PathLayer",
-                    data=[{"path": curved_path}],
-                    get_path="path",
-                    get_color=[255, 100, 100],
-                    width_scale=20,
-                    width_min_pixels=3,
-                    get_width=5,
                 )
                 r = pdk.Deck(
                     layers=[icon_layer, curved_layer, trail_layer, plane_layer],

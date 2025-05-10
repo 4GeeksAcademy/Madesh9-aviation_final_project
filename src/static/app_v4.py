@@ -25,23 +25,6 @@ def load_airports():
     return us_airports[['Label', 'Name', 'City', 'IATA', 'Latitude', 'Longitude']]
 
 # ---------------------------
-# TAB 1: Incident Prediction UI
-# ---------------------------
-def tab1(airports: pd.DataFrame):
-    '''Defines incident prediction tab.'''
-    st.header("Predict Flight Incident Risk")
-    col1, col2 = st.columns(2)
-    with col1:
-        origin_label = st.selectbox("Origin Airport", airports['Label'])
-        dest_label = st.selectbox("Destination Airport", airports['Label'])
-    with col2:
-        departure_time = st.number_input("Departure Time (e.g., 1430 for 2:30 PM)", min_value=0, max_value=2359, step=5)
-
-        st.button("Submit for map route and flight animation")
-
-    return origin_label, dest_label
-
-# ---------------------------
 # ARCS & MAP HELPERS
 # ---------------------------
 def generate_arc(p1, p2, num_points=100, height=10):
@@ -64,68 +47,69 @@ icon_data = {
 # MAIN APP
 # ---------------------------
 def main():
-    st.title("✈️ Flight Incident Predictor & Dashboard")
+    st.title("✈️ Flight Route Visualizer & Animator")
     st.image(image, width=200)
-    st.markdown("""
-    This app predicts the likelihood of a flight incident and visualizes the flight path between selected airports.
-    """)
 
     airports = load_airports()
 
-    tab_1, tab_2, tab_3 = st.tabs(["Incident Predictor","🌍 Map View", "🛫 Flight Animation"])
+    tab_map, tab_anim = st.tabs(["🌍 Map & Route Selection", "🛫 Flight Animation"])
 
-    with tab_1:
-        origin_label, dest_label = tab1(airports)
+    with tab_map:
+        st.header("Select Route")
 
-    origin = airports[airports['Label'] == origin_label].iloc[0]
-    destination = airports[airports['Label'] == dest_label].iloc[0]
+        col1, col2 = st.columns(2)
+        with col1:
+            origin_label = st.selectbox("Origin Airport", airports['Label'])
+        with col2:
+            dest_label = st.selectbox("Destination Airport", airports['Label'])
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Origin", f"{origin['City']} ({origin['IATA']})")
-    col2.metric("Destination", f"{destination['City']} ({destination['IATA']})")
-    distance = np.round(np.linalg.norm(np.array([origin['Latitude'], origin['Longitude']]) -
-                                       np.array([destination['Latitude'], destination['Longitude']])), 2)
-    col3.metric("Lat/Lon Distance", f"{distance}°")
+        origin = airports[airports['Label'] == origin_label].iloc[0]
+        destination = airports[airports['Label'] == dest_label].iloc[0]
 
-    curved_path = generate_arc(
-        (origin['Longitude'], origin['Latitude']),
-        (destination['Longitude'], destination['Latitude']),
-        num_points=100,
-        height=8
-    )
-    icon_layer_data = pd.DataFrame([
-        {
-            "name": f"{origin['City']} ({origin['IATA']})",
-            "coordinates": [origin['Longitude'], origin['Latitude']],
-            "icon_data": icon_data
-        },
-        {
-            "name": f"{destination['City']} ({destination['IATA']})",
-            "coordinates": [destination['Longitude'], destination['Latitude']],
-            "icon_data": icon_data
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Origin", f"{origin['City']} ({origin['IATA']})")
+        col2.metric("Destination", f"{destination['City']} ({destination['IATA']})")
+        distance = np.round(np.linalg.norm(np.array([origin['Latitude'], origin['Longitude']]) -
+                                           np.array([destination['Latitude'], destination['Longitude']])), 2)
+        col3.metric("Lat/Lon Distance", f"{distance}°")
+
+        curved_path = generate_arc(
+            (origin['Longitude'], origin['Latitude']),
+            (destination['Longitude'], destination['Latitude']),
+            num_points=100,
+            height=8
+        )
+        icon_layer_data = pd.DataFrame([
+            {
+                "name": f"{origin['City']} ({origin['IATA']})",
+                "coordinates": [origin['Longitude'], origin['Latitude']],
+                "icon_data": icon_data
+            },
+            {
+                "name": f"{destination['City']} ({destination['IATA']})",
+                "coordinates": [destination['Longitude'], destination['Latitude']],
+                "icon_data": icon_data
+            }
+        ])
+        view_state = pdk.ViewState(
+            latitude=(origin['Latitude'] + destination['Latitude']) / 2,
+            longitude=(origin['Longitude'] + destination['Longitude']) / 2,
+            zoom=3,
+            pitch=0,
+        )
+        tooltip = {
+            "html": "<b>Airport:</b> {name}",
+            "style": {"backgroundColor": "black", "color": "white"}
         }
-    ])
-    view_state = pdk.ViewState(
-        latitude=(origin['Latitude'] + destination['Latitude']) / 2,
-        longitude=(origin['Longitude'] + destination['Longitude']) / 2,
-        zoom=3,
-        pitch=0,
-    )
-    tooltip = {
-        "html": "<b>Airport:</b> {name}",
-        "style": {"backgroundColor": "black", "color": "white"}
-    }
-    icon_layer = pdk.Layer(
-        type='IconLayer',
-        data=icon_layer_data,
-        get_icon='icon_data',
-        get_size=4,
-        size_scale=15,
-        get_position='coordinates',
-        pickable=True,
-    )
-
-    with tab_2:
+        icon_layer = pdk.Layer(
+            type='IconLayer',
+            data=icon_layer_data,
+            get_icon='icon_data',
+            get_size=4,
+            size_scale=15,
+            get_position='coordinates',
+            pickable=True,
+        )
         curved_layer = pdk.Layer(
             "PathLayer",
             data=[{"path": curved_path}],
@@ -142,7 +126,7 @@ def main():
             tooltip=tooltip
         ))
 
-    with tab_3:
+    with tab_anim:
         chart_placeholder = st.empty()
         start = st.button("🛫 Start Flight")
         if start:
