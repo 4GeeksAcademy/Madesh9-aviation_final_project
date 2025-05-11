@@ -69,10 +69,10 @@ def main():
     origin = airports[airports['Label'] == origin_label].iloc[0]
     destination = airports[airports['Label'] == dest_label].iloc[0]
 
-    col1, col2 = st.columns(2)
-  
-    col1.metric("Origin", f"{origin['City']} ({origin['IATA']})")
-    col2.metric("Destination", f"{destination['City']} ({destination['IATA']})")
+    #col1, col2 = st.columns(2)
+
+    #col1.metric("Origin", f"{origin['City']} ({origin['IATA']})")
+    #col2.metric("Destination", f"{destination['City']} ({destination['IATA']})")
 
     curved_path = generate_arc(
         (origin['Longitude'], origin['Latitude']),
